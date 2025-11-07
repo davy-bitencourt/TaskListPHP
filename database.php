@@ -33,14 +33,13 @@ class Database
 
     private function createTable()
     {
-        $stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
+        $stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='user'");
         $tableExists = $stmt->fetch() !== false;
         
         if (!$tableExists) {
-            $sql = "CREATE TABLE users ( 
-                    id INT AUTO_INCREMENT PRIMARY KEY, 
-                    nome TEXT NOT NULL, 
-                    email TEXT UNIQUE NOT NULL, 
+            $sql = "CREATE TABLE user ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    username TEXT UNIQUE NOT NULL, 
                     senha TEXT NOT NULL
                 )";
             $this->pdo->exec($sql);
