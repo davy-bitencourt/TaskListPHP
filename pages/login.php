@@ -32,20 +32,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h2>Fazer Login</h2>
-    <form method="POST">
-        <label>Usuário</label>
-        <input type="text" name="username" required>
-        <label>Senha</label>
-        <input type="password" name="senha" required>
-        <button type="submit">Entrar</button>
-        <a href="cadastro.php">criar uma conta</a>
-    </form>
-
-    <?php if (isset($erro)): ?>
-    <p style="color:red;"><?= htmlspecialchars($erro) ?></p>
-    <?php endif; ?> 
+<body class="body2">
+    <div class="container">
+        <h2>Fazer Login</h2>
+        <form method="POST">
+            <label>Usuário</label>
+            <input type="text" name="username" required>
+            <label>Senha</label>
+            <input type="password" name="senha" required>
+            <button class="button" type="submit">Entrar</button>
+            <a href="cadastro.php">Criar uma conta</a>
+        </form>
+        
+        <?php if (isset($erro)): ?>
+            <p style="color:red;"><?= htmlspecialchars($erro) ?></p>
+            <?php endif; ?> 
+    </div>
 </body>
 </html>

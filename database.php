@@ -35,12 +35,27 @@ class Database
     {
         $stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='user'");
         $tableExists = $stmt->fetch() !== false;
-        
         if (!$tableExists) {
             $sql = "CREATE TABLE user ( 
                     id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     username TEXT UNIQUE NOT NULL, 
                     senha TEXT NOT NULL
+                )";
+            $this->pdo->exec($sql);
+
+        } 
+
+        $stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='task'");
+        $taskExists = $stmt->fetch() !== false;
+        if (!$taskExists) {
+            $sql = "CREATE TABLE task (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    titulo TEXT NOT NULL,
+                    status INTEGER DEFAULT 0,
+                    type TEXT,
+                    data_limite TEXT,
+                    user_id INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES user(id)
                 )";
             $this->pdo->exec($sql);
         }
