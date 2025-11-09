@@ -84,7 +84,6 @@ th {
 
 input, textarea, select {
     padding: 8px;
-    margin-top: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }

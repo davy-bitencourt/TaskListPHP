@@ -9,25 +9,51 @@ if (!isset($_SESSION['user_id'])) {
 
 $repo = new CRUD();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['titulo'])) {
-    $task = new Task(
-        id: 0, 
-        titulo: $_POST['titulo'],
-        status: false,
-        type: $_POST['tipo'] ?? '',
-        data_limite: $_POST['data_limite'] ?? '',
-        user_id: $_SESSION['user_id']
-    );
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $acao = $_POST['acao'] ?? 'criar';
 
-    $repo->create($task);
+    if ($acao === 'criar') {
+        $task = new Task(
+            id: 0,
+            titulo: $_POST['titulo'],
+            status: false,
+            type: $_POST['tipo'] ?? '',
+            data_limite: $_POST['data_limite'] ?? '',
+            user_id: $_SESSION['user_id']
+        );
+        $repo->create($task);
+    } elseif ($acao === 'editar') {
+        $task = new Task(
+            id: (int)$_POST['id'],
+            titulo: $_POST['titulo'],
+            status: $_POST['status'] == '1',
+            type: $_POST['tipo'] ?? '',
+            data_limite: $_POST['data_limite'] ?? '',
+            user_id: $_SESSION['user_id']
+        );
+        $repo->update($task);
+    } elseif ($acao === 'status') {
+        $task = $repo->getById((int)$_POST['id']);
+        if ($task && $task->user_id === $_SESSION['user_id']) {
+            $task->status = $_POST['status'] == '1';
+            $repo->update($task);
+        }
+    }
 
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
-
 $tasks = $repo->getByUser($_SESSION['user_id']);
+
+$allCompleted = false;
+if (!empty($tasks)) {
+    $allCompleted = array_reduce($tasks, function($carry, $task) {
+        return $carry && $task->status;
+    }, true);
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -41,14 +67,15 @@ $tasks = $repo->getByUser($_SESSION['user_id']);
 
     <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['username']) ?>!</h1>
     <a href="logout.php">Sair</a>
+    <a href="historico.php">Histórico</a>
 
     <h2>Suas tarefas</h2>
     
     <table>
         <thead>
             <tr>
+                <th> </th>
                 <th>Título</th>
-                <th>Status</th>
                 <th>Tipo</th>
                 <th>Prazo</th>
                 <th>
@@ -56,33 +83,70 @@ $tasks = $repo->getByUser($_SESSION['user_id']);
                 </th>
             </tr>
         </thead>
-        <tbody>
-            <?php if (empty($tasks)): ?>
-                <tr>
-                    <td colspan="5" style="text-align:center;">Nenhuma tarefa encontrada</td>
-                </tr>
-            <?php else: ?>
-                <?php foreach ($tasks as $t): ?>
+            <tbody>
+                <?php if (empty($tasks)): ?>
                     <tr>
-                        <td><?= htmlspecialchars($t->titulo) ?></td>
-                        <td><?= $t->status ? "Concluída" : "Pendente" ?></td>
-                        <td><?= htmlspecialchars($t->type) ?></td>
-                        <td><?= htmlspecialchars($t->data_limite) ?></td>
-                        <td>
-                            <a href="editar.php?id=<?= $t->id ?>">Editar</a> |
-                            <a href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
-                        </td>
+                        <td colspan="5" style="text-align:center;">Nenhuma tarefa encontrada</td>
                     </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
+                <?php elseif ($allCompleted): ?>
+                    <tr>
+                        <td colspan="5" style="text-align:center;">Tarefas concluídas!</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($tasks as $t): ?>
+                        <?php if (!$t->status): ?>
+                            <tr>
+                                <td>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="acao" value="status">
+                                        <input type="hidden" name="id" value="<?= $t->id ?>">
+                                        <input type="hidden" name="status" value="<?= $t->status ? '0' : '1' ?>">
+                                        <input type="checkbox" onchange="this.form.submit()" <?= $t->status ? 'checked' : '' ?>>
+                                    </form>
+                                </td>
+                                <td><?= htmlspecialchars($t->titulo) ?></td>
+                                <td><?= htmlspecialchars($t->type) ?></td>
+                                <td><?= htmlspecialchars($t->data_limite) ?></td>
+                                <td>
+                                    <a href="?edit=<?= $t->id ?>">Editar</a> |
+                                    <a href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
     </table>
 
-    <div id="modalNovaTarefa" class="modal">
-        <div class="modal-content">
-            <span class="close" id="fecharModal">&times;</span>
+   <div id="modalNovaTarefa" class="modal">
+    <div class="modal-content">
+        <span class="close" id="fecharModal">&times;</span>
+
+        <?php if (isset($_GET['edit'])):
+            $editTask = $repo->getById((int)$_GET['edit']); 
+        ?>
+            <h3>Editar tarefa</h3>
+            <form method="POST">
+                <input type="hidden" name="acao" value="editar">
+                <input type="hidden" name="id" value="<?= $editTask->id ?>">
+
+                <label>Título:</label>
+                <input type="text" name="titulo" value="<?= htmlspecialchars($editTask->titulo) ?>" required>
+
+                <label>Tipo:</label>
+                <input type="text" name="tipo" value="<?= htmlspecialchars($editTask->type) ?>">
+
+                <label>Prazo:</label>
+                <input type="date" name="data_limite" value="<?= htmlspecialchars($editTask->data_limite) ?>">
+
+                <input type="submit" value="Salvar alterações">
+            </form>
+
+        <?php else: ?>
             <h3>Criar nova tarefa</h3>
             <form method="POST">
+                <input type="hidden" name="acao" value="criar">
+
                 <label>Título:</label>
                 <input type="text" name="titulo" required>
 
@@ -94,8 +158,9 @@ $tasks = $repo->getByUser($_SESSION['user_id']);
 
                 <input type="submit" value="Salvar">
             </form>
-        </div>
+        <?php endif; ?>
     </div>
+</div>
 
     <script>
         const modal = document.getElementById('modalNovaTarefa');
@@ -106,6 +171,12 @@ $tasks = $repo->getByUser($_SESSION['user_id']);
         close.onclick = () => modal.style.display = 'none';
         window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
     </script>
+
+    <?php if (isset($_GET['edit'])): ?>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {document.getElementById('modalNovaTarefa').style.display = 'block';});
+    </script>
+    <?php endif; ?>
 
 </body>
 </html>

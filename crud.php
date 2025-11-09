@@ -46,5 +46,17 @@ class CRUD {
         $stmt = $this->db->prepare("DELETE FROM task WHERE id = ?");
         return $stmt->execute([$id]);
     }
+
+
+    public function getConcluidasByUser(int $user_id): array {
+    $stmt = $this->db->prepare("SELECT * FROM task WHERE user_id = ? AND status = 1 ORDER BY data_limite DESC");
+    $stmt->execute([$user_id]);
+    $tasks = [];
+
+    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $tasks[] = new Task($r['id'], $r['titulo'], (bool)$r['status'], $r['type'], $r['data_limite'], $r['user_id']);
+    }
+    return $tasks;
+    }
 }
 ?>
