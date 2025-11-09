@@ -44,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="body2">
-    
     <div class="container">
         <h2>Criar Conta</h2>
         <form method="POST">

@@ -47,8 +47,9 @@ $tasksConcluidas = $repo->getConcluidasByUser($_SESSION['user_id']);
 </head>
 <body>
 
-    <h1>Tarefas concluídas</h1>
-    <a href="dashboard.php">Voltar</a>
+    <?php include '../includes/header.php'; ?>
+
+    <h2>Tarefas concluídas</h2>
 
     <table>
         <thead>
@@ -56,8 +57,8 @@ $tasksConcluidas = $repo->getConcluidasByUser($_SESSION['user_id']);
                 <th> </th>
                 <th>Título</th>
                 <th>Tipo</th>
-                <th>Data limite</th>
-                <th>Ações</th>
+                <th>Prazo</th>
+                <th> </th>
             </tr>
         </thead>
         <tbody>
@@ -82,8 +83,8 @@ $tasksConcluidas = $repo->getConcluidasByUser($_SESSION['user_id']);
                         <td><?= htmlspecialchars($t->data_limite) ?></td>
 
                         <td>
-                            <a href="?edit=<?= $t->id ?>">Editar</a> |
-                            <a href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                            <a class="a2" href="?edit=<?= $t->id ?>">Editar</a>
+                            <a class="a2" href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -93,7 +94,7 @@ $tasksConcluidas = $repo->getConcluidasByUser($_SESSION['user_id']);
 
     <div id="modalEditarTarefa" class="modal">
         <div class="modal-content">
-            <span class="close" id="fecharModal">&times;</span>
+            <span class="special" id="fecharModal">&times;</span>
 
             <?php if (isset($_GET['edit'])):
                 $editTask = $repo->getById((int)$_GET['edit']);

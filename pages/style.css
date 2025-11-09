@@ -38,6 +38,19 @@ th {
     background: #f2f2f2;
 }
 
+a.th {
+    border: none;
+    background: #f2f2f2;
+    padding: 10px 15px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #888;
+}
+
+a.th:hover{
+    color: #000;
+}
+
 .button {
     display: inline-block;
     background-color: #3498db;
@@ -52,7 +65,6 @@ th {
     background-color: #2980b9;
 }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -71,14 +83,14 @@ th {
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
 
-.close {
+.special {
     color: #888;
     float: right;
     font-size: 20px;
     cursor: pointer;
 }
 
-.close:hover {
+.special:hover {
     color: #000;
 }
 
@@ -113,3 +125,23 @@ form {
     flex-direction: column;
     gap: 10px;
 }
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 10px 20px;
+    border-bottom: 1px solid gray;
+}
+
+.a2{
+    text-decoration: none; 
+    padding: 3px;
+    color: #888;
+}
+
+.a2:hover{
+    color: #000;
+}
+

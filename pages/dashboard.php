@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: dashboard.php");
     exit;
 }
 
@@ -65,12 +65,9 @@ if (!empty($tasks)) {
 </head>
 <body>
 
-    <h1>Bem-vindo, <?= htmlspecialchars($_SESSION['username']) ?>!</h1>
-    <a href="logout.php">Sair</a>
-    <a href="historico.php">Histórico</a>
+    <?php include '../includes/header.php'; ?>
 
     <h2>Suas tarefas</h2>
-    
     <table>
         <thead>
             <tr>
@@ -79,7 +76,7 @@ if (!empty($tasks)) {
                 <th>Tipo</th>
                 <th>Prazo</th>
                 <th>
-                    <button id="abrirModal">+ Nova Tarefa</button>
+                    <a href="?add=1" class="th" id="abrirModal">+ Nova Tarefa</a>
                 </th>
             </tr>
         </thead>
@@ -108,8 +105,8 @@ if (!empty($tasks)) {
                                 <td><?= htmlspecialchars($t->type) ?></td>
                                 <td><?= htmlspecialchars($t->data_limite) ?></td>
                                 <td>
-                                    <a href="?edit=<?= $t->id ?>">Editar</a> |
-                                    <a href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                                    <a class="a2" href="?edit=<?= $t->id ?>">Editar</a>
+                                    <a class="a2" href="excluir.php?id=<?= $t->id ?>" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -118,13 +115,12 @@ if (!empty($tasks)) {
             </tbody>
     </table>
 
-   <div id="modalNovaTarefa" class="modal">
+<div id="modalNovaTarefa" class="modal">
     <div class="modal-content">
-        <span class="close" id="fecharModal">&times;</span>
+        <span class="special" id="fecharModal">&times;</span>
 
-        <?php if (isset($_GET['edit'])):
-            $editTask = $repo->getById((int)$_GET['edit']); 
-        ?>
+        <?php if (isset($_GET['edit'])): ?>
+            <?php $editTask = $repo->getById((int)$_GET['edit']); ?>
             <h3>Editar tarefa</h3>
             <form method="POST">
                 <input type="hidden" name="acao" value="editar">
@@ -142,7 +138,7 @@ if (!empty($tasks)) {
                 <input type="submit" value="Salvar alterações">
             </form>
 
-        <?php else: ?>
+        <?php elseif (isset($_GET['add'])): ?>
             <h3>Criar nova tarefa</h3>
             <form method="POST">
                 <input type="hidden" name="acao" value="criar">
@@ -162,17 +158,17 @@ if (!empty($tasks)) {
     </div>
 </div>
 
+
     <script>
         const modal = document.getElementById('modalNovaTarefa');
         const btn = document.getElementById('abrirModal');
         const close = document.getElementById('fecharModal');
 
-        btn.onclick = () => modal.style.display = 'block';
-        close.onclick = () => modal.style.display = 'none';
-        window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
+        btn.onclick = (e) => { modal.style.display = 'block'; };
+        close.onclick = () => { modal.style.display = 'none'; };
     </script>
 
-    <?php if (isset($_GET['edit'])): ?>
+    <?php if (isset($_GET['add']) || isset($_GET['edit'])): ?>
     <script>
         window.addEventListener('DOMContentLoaded', () => {document.getElementById('modalNovaTarefa').style.display = 'block';});
     </script>
