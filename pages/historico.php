@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../crud.php';
+require_once '../src/crud.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
